@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Image Filtering";
 }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 <h1>@ViewData["Title"]</h1>
 
 <p>Harrison's wonderful image filtering pipeline</p>
@@ -12,10 +13,14 @@
         <input asp-for="OriginalImage" type="file" id="imageUpload" accept="image/*" required>
     </div>
     <div>
+        <!-- Add buttons for filters -->
         @foreach(Type filterType in Model.FilterTypes)
 		{
 			<div>
-				<label for="@filterType.FullName">@filterType.Name</label>
+                <button>
+                    <i class="fas fa-plus"></i>
+                    @filterType.Name
+                </button>
 			</div>
 		}
     </div>

@@ -25,12 +25,13 @@ namespace PersonalWebsite.Pages
 
         public void OnPost()
         {
-            Scale scale = new Scale();
-            scale.OutputWidth = 64;
-            scale.OutputHeight = 64;
+            Stream stream = OriginalImage.OpenReadStream();
+            Image image = Image.FromStream(stream);
 
-            Image input = Image.FromStream(OriginalImage.OpenReadStream());
-            Image output = scale.Filter(input);
+            foreach(IFilter filter in Filters)
+            {
+                image = filter.Filter(image);
+            }
         }
 
         public IEnumerable<Type> FilterTypes { get; set; }
