@@ -1,0 +1,23 @@
+﻿@page
+@model ImageFilteringModel
+@{
+    ViewData["Title"] = "Image Filtering";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>Harrison's wonderful image filtering pipeline</p>
+<form method="post" enctype="multipart/form-data">
+    <div>
+        <label for="imageUpload">Select an image to upload:</label>
+        <input asp-for="OriginalImage" type="file" id="imageUpload" accept="image/*" required>
+    </div>
+    <div>
+        @foreach(Type filterType in Model.FilterTypes)
+		{
+			<div>
+				<label for="@filterType.FullName">@filterType.Name</label>
+			</div>
+		}
+    </div>
+    <button type="submit">Apply Filters</button>
+</form>
