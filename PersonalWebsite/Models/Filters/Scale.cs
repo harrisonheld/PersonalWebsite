@@ -16,9 +16,9 @@ namespace PersonalWebsite.Models.Filters
             _outputHeight = outputHeight;
         }
 
-        public Image Apply(Image original)
+        public Bitmap Apply(Bitmap original)
         {
-            Image result = new Bitmap(_outputWidth, _outputHeight);
+            Bitmap result = new Bitmap(_outputWidth, _outputHeight);
             using (Graphics graphics = Graphics.FromImage(result))
             {
                 graphics.DrawImage(original, 0, 0, _outputWidth, _outputHeight);

@@ -23,8 +23,12 @@ namespace PersonalWebsite.Controllers
 
             using (var image = new Bitmap(imageFile.OpenReadStream()))
             {
-                var filters = new IFilter[] { new Grayscale() };
-                Image output = image;
+                var filters = new IFilter[] { 
+                    new Scale(128, 128),
+                    new ToneMap(new Color[] { Color.Black, Color.FromArgb(255, 64, 64, 64), Color.FromArgb(255, 192, 192, 192), Color.White }),
+                    new Tint(Color.DarkBlue, 0.4f)
+                };
+                Bitmap output = image;
                 foreach(IFilter filter in filters)
                 {
                     output = filter.Apply(output);
@@ -32,11 +36,8 @@ namespace PersonalWebsite.Controllers
 
                 using (var outputImageStream = new MemoryStream())
                 {
-                    // Specify the encoder for the image format (e.g., JPEG)
-                    var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FormatID == ImageFormat.Jpeg.Guid);
-
                     // Save the image using the specified encoder
-                    output.Save(outputImageStream, jpegEncoder, null);
+                    output.Save(outputImageStream, ImageFormat.Png);
                     var contentType = $"image/{output.RawFormat.ToString().ToLower()}";
 
                     return File(outputImageStream.ToArray(), contentType);

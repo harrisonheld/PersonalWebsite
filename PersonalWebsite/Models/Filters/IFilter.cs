@@ -7,6 +7,6 @@ namespace PersonalWebsite.Models.Filters
         public string Name { get; } // name of the filter
         public string Description { get; } // what the filter does
 
-        public Image Apply(Image image);
+        public Bitmap Apply(Bitmap image);
     }
 }
