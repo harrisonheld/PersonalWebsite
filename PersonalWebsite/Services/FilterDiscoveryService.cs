@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PersonalWebsite.Filters;
+using PersonalWebsite.Models.Filters;
 using System.Reflection;
 
 public interface IFilterDiscoveryService

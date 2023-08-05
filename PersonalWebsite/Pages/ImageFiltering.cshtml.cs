@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using PersonalWebsite.Filters;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace PersonalWebsite.Pages
 {
@@ -23,22 +23,9 @@ namespace PersonalWebsite.Pages
             return Page();
         }
 
-        public void OnPost()
-        {
-            Stream stream = OriginalImage.OpenReadStream();
-            Image image = Image.FromStream(stream);
-
-            foreach(IFilter filter in Filters)
-            {
-                image = filter.Filter(image);
-            }
-        }
-
         public IEnumerable<Type> FilterTypes { get; set; }
 
         [BindProperty]
         public IFormFile OriginalImage { get; set; }
-        [BindProperty]
-        public IFilter[] Filters { get; set; }
     }
 }

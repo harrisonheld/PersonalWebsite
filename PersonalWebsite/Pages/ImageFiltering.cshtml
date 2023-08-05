@@ -3,26 +3,75 @@
 @{
     ViewData["Title"] = "Image Filtering";
 }
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+            $('#applyFiltersButton').click(function () {
+                var formData = new FormData($('#imageForm')[0]);
+
+                $.ajax({
+                    url: '/api/imagefilter/apply', // Adjust the URL based on your route
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function (response) {
+                        var blob = new Blob([response]);
+                        var afterImage = document.getElementById('afterImage');
+                        afterImage.src = URL.createObjectURL(blob);
+                    },
+                    error: function (error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            $('#imageFile').change(function () {
+                var inputImage = document.getElementById('beforeImage');
+                inputImage.src = URL.createObjectURL(this.files[0]);
+            });
+
+            $('#slider').on('input', function () {
+                var value = $('#slider').val();
+                var clipValue = `polygon(0 0, ${value}% 0, ${value}% 100%, 0 100%)`;
+                $('#beforeImage').css('clip-path', clipValue);
+            });
+        });
+    </script>
+}
+
 <h1>@ViewData["Title"]</h1>
 
 <p>Harrison's wonderful image filtering pipeline</p>
-<form method="post" enctype="multipart/form-data">
+<form id="imageForm" method="post" enctype="multipart/form-data">
     <div>
-        <label for="imageUpload">Select an image to upload:</label>
-        <input asp-for="OriginalImage" type="file" id="imageUpload" accept="image/*" required>
+        <label for="imageFile">Select an image to upload:</label>
+        <input type="file" name="imageFile" id="imageFile" accept="image/*">
     </div>
     <div>
         <!-- Add buttons for filters -->
+
+        <div>
         @foreach(Type filterType in Model.FilterTypes)
 		{
-			<div>
-                <button>
-                    <i class="fas fa-plus"></i>
-                    @filterType.Name
-                </button>
-			</div>
+            <button type="button">
+                <i class="fas fa-plus"></i>
+                @filterType.Name
+            </button>
 		}
+        </div>
     </div>
-    <button type="submit">Apply Filters</button>
+    <button id="applyFiltersButton" type="button">Apply Filters</button>
 </form>
+
+<div class="relative w-1/2 mx-auto">
+    <div class="relative">
+        <img id="afterImage" class="absolute" src="https://picsum.photos/535/354" alt="After" />
+        <img id="beforeImage" class="absolute" src="https://picsum.photos/536/354" alt="Before" style="clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%)" />
+    </div>
+    <input id="slider" type="range" min="0" max="100" value="50" step="0.01" class="absolute bottom-0 w-full" />
+</div>

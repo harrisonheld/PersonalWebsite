@@ -1,12 +1,12 @@
 ﻿using System.Drawing;
 
-namespace PersonalWebsite.Filters
+namespace PersonalWebsite.Models.Filters
 {
     public interface IFilter
     {
         public string Name { get; } // name of the filter
         public string Description { get; } // what the filter does
 
-        public Image Filter(Image image);
+        public Image Apply(Image image);
     }
 }
