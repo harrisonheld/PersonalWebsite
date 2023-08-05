@@ -5,9 +5,6 @@ namespace PersonalWebsite.Models.Filters
 {
     public class ToneMap : IFilter
     {
-        public string Name => "Tone Map";
-        public string Description => "idk man";
-
         private Color[] _tones;
 
         public ToneMap(Color[] tones)

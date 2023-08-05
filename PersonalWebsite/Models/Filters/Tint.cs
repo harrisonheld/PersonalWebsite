@@ -5,9 +5,6 @@ namespace PersonalWebsite.Models.Filters
 {
     public class Tint : IFilter
     {
-        public string Name => "Tint";
-        public string Description => "Tint the image.";
-
         private Color _tint;
         private float _intensity;
 

@@ -12,6 +12,13 @@ namespace PersonalWebsite.Controllers
     [ApiController]
     public class ImageFilterController : ControllerBase
     {
+        private readonly IFilterDiscoveryService _filterDiscoveryService;
+
+        public ImageFilterController(IFilterDiscoveryService filterDiscoveryService)
+        {
+            _filterDiscoveryService = filterDiscoveryService;
+        }
+
         [HttpPost]
         [Route("apply")]
         public IActionResult ApplyFilters([FromForm] IFormFile imageFile)
@@ -44,5 +51,24 @@ namespace PersonalWebsite.Controllers
                 }
             }
         }
+
+        [HttpGet]
+        [Route("filterParameters")]
+        public BasicParameterInfo[] GetFilterParameters(string filterTypeName)
+        {
+            Type filterType = _filterDiscoveryService.GetFilterTypeByName(filterTypeName);
+
+            return filterType.GetConstructors(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+                .First()
+                .GetParameters()
+                .Select(p => new BasicParameterInfo() { Name = p.Name, Type = p.ParameterType.Name } )
+                .ToArray();
+        }
+    }
+
+    public class BasicParameterInfo
+    {
+        public string Name { get; set; }
+        public string Type { get; set; }
     }
 }

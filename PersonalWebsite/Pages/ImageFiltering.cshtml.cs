@@ -18,7 +18,15 @@ namespace PersonalWebsite.Pages
 
         public IActionResult OnGet()
         {
-            FilterTypes = _filterDiscoveryService.GetFilterImplementations();
+            FilterTypes = _filterDiscoveryService.GetAllFilterImplementations();
+
+            foreach(Type filterType in FilterTypes)
+            {
+                filterType.GetConstructors(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+                    .SelectMany(c => c.GetParameters())
+                    .Select(p => p.ParameterType)
+                    .ToArray();
+            }
 
             return Page();
         }

@@ -40,6 +40,44 @@
                 var clipValue = `polygon(0 0, ${value}% 0, ${value}% 100%, 0 100%)`;
                 $('#beforeImage').css('clip-path', clipValue);
             });
+
+            $('.addFilterButton').on('click', function() {
+                // get the type of filter to add
+                var filterType = $(this).data('filter-type');
+                // get the list of params needed for the filter
+                $.ajax({
+                    type: 'GET',
+                    url: '/api/imagefilter/filterParameters',
+                    data: { filterTypeName: filterType },
+                    success: function (data) {
+
+                        var filterControlPanels = $('#filterContainer');
+
+                        // Create a new container for the filter control panel
+                        var filterContainer = $('<div>').addClass('filter-panel');
+
+                        // Generate input fields for filter parameters and append to the filter container
+                        for (var i = 0; i < data.length; i++) {
+
+                            var label = $('<label>').attr({
+								for: 'filterParams[' + i + '].Value'
+                            }).text(data[i].name);
+
+                            var input = $('<input>').attr({
+                                type: 'text',
+                                name: 'filterParams[' + i + '].Value', // Adjust the name based on your needs
+                                placeholder: data[i].name
+                            });
+
+                            filterContainer.append(label);
+                            filterContainer.append(input);
+                        }
+
+                        // Append the filter container to the filterControlPanels div
+                        filterControlPanels.append(filterContainer);
+                    }
+                });
+            });
         });
     </script>
 }
@@ -48,23 +86,30 @@
 
 <p>Harrison's wonderful image filtering pipeline</p>
 <form id="imageForm" method="post" enctype="multipart/form-data">
+    <!-- Image Upload -->
     <div>
         <label for="imageFile">Select an image to upload:</label>
         <input type="file" name="imageFile" id="imageFile" accept="image/*">
     </div>
-    <div>
-        <!-- Add buttons for filters -->
 
-        <div>
+    <!-- Filters -->
+    <div id="filterContainer">
+        <!-- Filter control panels will be added dynamically -->
+    </div>
+
+    <!-- Add Filter Buttons -->
+    <div>
         @foreach(Type filterType in Model.FilterTypes)
 		{
-            <button type="button">
+            <button type="button" class="addFilterButton" data-filter-type=@filterType.Name>
                 <i class="fas fa-plus"></i>
                 @filterType.Name
             </button>
 		}
         </div>
     </div>
+
+    <!-- Apply Filters Button -->
     <button id="applyFiltersButton" type="button">Apply Filters</button>
 </form>
 

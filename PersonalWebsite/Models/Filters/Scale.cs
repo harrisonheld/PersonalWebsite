@@ -4,9 +4,6 @@ namespace PersonalWebsite.Models.Filters
 {
     public class Scale : IFilter
     {
-        public string Name => "Scale";
-        public string Description => "Resizes the image.";
-
         private int _outputWidth { get; set; }
         private int _outputHeight { get; set; }
 
