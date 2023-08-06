@@ -585,6 +585,10 @@ video {
   margin-top: 2rem;
 }
 
+.table {
+  display: table;
+}
+
 .hidden {
   display: none;
 }

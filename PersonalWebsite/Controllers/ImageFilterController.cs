@@ -5,6 +5,7 @@ using System.IO;
 using PersonalWebsite.Models;
 using PersonalWebsite.Models.Filters;
 using System.Drawing.Imaging;
+using System.Reflection;
 
 namespace PersonalWebsite.Controllers
 {
@@ -21,20 +22,61 @@ namespace PersonalWebsite.Controllers
 
         [HttpPost]
         [Route("apply")]
-        public IActionResult ApplyFilters([FromForm] IFormFile imageFile)
+        /// <summary>
+        /// FilterTypeNames is an array of strings that are Type names
+        /// FilterParameters is an array of parameter arrays
+        public IActionResult ApplyFilters([FromForm] IFormFile imageFile, [FromForm] string[] FilterTypeNames, [FromForm] string[] FilterParameters)
         {
             if (imageFile == null || imageFile.Length == 0)
             {
                 return BadRequest("No image provided.");
             }
 
+            IFilter[] filters = new IFilter[FilterTypeNames.Length];
+            int totalParamsCast = 0;
+            for (int i = 0; i < filters.Length; i++)
+            {
+                Type filterType = _filterDiscoveryService.GetFilterTypeByName(FilterTypeNames[i]);
+
+                // get first constructor
+                ConstructorInfo constructor = filterType.GetConstructors(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).First();
+                // cast the params
+                ParameterInfo[] constructorParams = constructor.GetParameters();
+                object[] convertedParams = new object[constructorParams.Length];
+                for (int j = 0; j < constructorParams.Length; j++)
+                {
+                    Type paramType = constructorParams[j].ParameterType;
+                    string paramValueStr = FilterParameters[totalParamsCast++];
+                    object paramValue;
+
+                    if(paramType == typeof(Color))
+                    {
+                        // convert strings of the form #ABCDEF
+                        string redHex = paramValueStr.Substring(1, 2);
+                        string greenHex = paramValueStr.Substring(3, 2);
+                        string blueHex = paramValueStr.Substring(5, 2);
+
+                        byte red = Convert.ToByte(redHex, 16);
+                        byte green = Convert.ToByte(greenHex, 16);
+                        byte blue = Convert.ToByte(blueHex, 16);
+
+                        paramValue = Color.FromArgb(red, green, blue);
+                    }
+                    else
+                    {
+                        paramValue = Convert.ChangeType(paramValueStr, paramType);
+                    }
+
+                    convertedParams[j] = paramValue;
+                }
+
+                // create the filter
+                filters[i] = (IFilter)constructor.Invoke(convertedParams);
+            }
+
+            // apply all the filters
             using (var image = new Bitmap(imageFile.OpenReadStream()))
             {
-                var filters = new IFilter[] { 
-                    new Scale(128, 128),
-                    new ToneMap(new Color[] { Color.Black, Color.FromArgb(255, 64, 64, 64), Color.FromArgb(255, 192, 192, 192), Color.White }),
-                    new Tint(Color.DarkBlue, 0.4f)
-                };
                 Bitmap output = image;
                 foreach(IFilter filter in filters)
                 {
@@ -43,9 +85,8 @@ namespace PersonalWebsite.Controllers
 
                 using (var outputImageStream = new MemoryStream())
                 {
-                    // Save the image using the specified encoder
                     output.Save(outputImageStream, ImageFormat.Png);
-                    var contentType = $"image/{output.RawFormat.ToString().ToLower()}";
+                    var contentType = "image/png";
 
                     return File(outputImageStream.ToArray(), contentType);
                 }
